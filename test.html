@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMPRA — The Campus Way to Build Startup Teams</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"Space Grotesk"', 'monospace']
+          },
+          colors: {
+            campra: {
+              orange: '#ff5a1f',
+              darkorange: '#e04710',
+              emerald: '#10b981',
+              dark: '#090d16',
+              card: '#0f172a',
+              border: '#1e293b',
+              muted: '#94a3b8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #080c14;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .font-space { font-family: 'Space Grotesk', sans-serif; }
+    /* Subtle scanline / grid texture */
+    .bg-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 90, 31, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 90, 31, 0.04) 1px, transparent 1px);
+    }
+    /* Pulse glow radar */
+    @keyframes radar-pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0.2; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .radar-wave {
+      animation: radar-pulse 2.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-grid flex flex-col antialiased selection:bg-orange-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#090d16]/90 border-b border-campra-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="resetView()">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/20 text-white font-black text-xl font-space">
+          C
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-space font-bold text-xl tracking-tight text-white">CAMPRA</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded">BENGALURU PILOT</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium">The Campus Way to Build Startups</p>
+        </div>
+      </div>
+
+      <!-- Campus Switcher & Geolocation Status -->
+      <div class="hidden md:flex items-center gap-4">
+        <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-full px-3.5 py-1.5">
+          <div class="relative flex items-center justify-center w-3 h-3">
+            <div class="absolute w-3 h-3 rounded-full bg-emerald-500 radar-wave"></div>
+            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+          </div>
+          <select id="campus-select" onchange="changeCampus(this.value)" class="bg-transparent text-xs font-semibold text-slate-200 focus:outline-none cursor-pointer">
+            <option value="pes_rr" class="bg-slate-900 text-white">PES University (RR Campus)</option>
+            <option value="rvce" class="bg-slate-900 text-white">RV College of Engineering (RVCE)</option>
+            <option value="reva" class="bg-slate-900 text-white">REVA University</option>
+            <option value="bmsce" class="bg-slate-900 text-white">BMS College of Engineering (BMSCE)</option>
+          </select>
+          <span class="text-[10px] text-emerald-400 font-mono font-medium px-1.5 py-0.5 bg-emerald-500/10 rounded-md border border-emerald-500/20">
+            &lt; 800m Radar ON
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Active Huddle Tracker Button -->
+        <button id="huddle-btn" onclick="openHuddleModal()" class="relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 transition">
+          <i data-lucide="coffee" class="w-4 h-4 text-orange-400"></i>
+          <span>Active Huddle</span>
+          <span id="huddle-badge" class="hidden absolute -top-1.5 -right-1.5 flex h-4 w-4">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-4 w-4 bg-orange-500 text-[9px] font-bold text-white items-center justify-center">1</span>
+          </span>
+        </button>
+
+        <!-- Post Requisition Button -->
+        <button onclick="openPostModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/25 transition active:scale-95">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Post Role Bounty</span>
+          <span class="sm:hidden">Post</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <section class="relative pt-8 pb-6 px-4 sm:px-6 lg:px-8 border-b border-campra-border/60 bg-gradient-to-b from-[#090d16] to-[#0d1322]">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-3">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+          <span id="hero-campus-label">PES University • Ring Road Campus</span>
+          <span class="text-slate-500">|</span>
+          <span class="text-emerald-400 font-mono">100% Free Campus Network</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight font-space">
+          Find your co-founder at the <span class="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">next table.</span>
+        </h1>
+        <p class="text-slate-400 mt-2 text-sm sm:text-base max-w-2xl">
+          Match with verified campus developers, business operators, and designers within walking distance. Zero digital ghosting—meet in 15 minutes at the canteen.
+        </p>
+      </div>
+
+      <!-- Campus Live Radar Widget -->
+      <div class="w-full md:w-auto flex-shrink-0 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 shadow-xl flex items-center gap-4">
+        <div class="relative w-14 h-14 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800">
+          <div class="absolute inset-0 rounded-full border border-orange-500/20 radar-wave"></div>
+          <div class="absolute inset-2 rounded-full border border-orange-500/40"></div>
+          <i data-lucide="radio" class="w-6 h-6 text-orange-400"></i>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">Walking Radius Hub</div>
+          <div class="text-base font-bold text-white flex items-center gap-2 font-space">
+            <span id="stat-active-bounties">14</span> Open Campus Bounties
+          </div>
+          <div class="text-xs text-emerald-400 flex items-center gap-1.5 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Avg huddle distance: <strong class="text-slate-200">320 meters</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- Search & Filter Controls -->
+    <div class="flex flex-col gap-4 mb-8">
+      
+      <!-- Top Row: Search and Quick Switchers -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search stack, role, or venture (e.g. React, GTM, FinTech, Figma)..." 
+            oninput="handleSearch(this.value)"
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/40 transition">
+        </div>
+
+        <!-- Incentive Type Filter -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          <span class="text-xs text-slate-500 font-medium whitespace-nowrap">Incentive:</span>
+          <button onclick="setIncentiveFilter('all')" class="incentive-btn active-filter px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 whitespace-nowrap transition" data-inc="all">
+            All Models
+          </button>
+          <button onclick="setIncentiveFilter('Sweat_Equity')" class="incentive-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap transition" data-inc="Sweat_Equity">
+            Sweat Equity (%)
+          </button>
+          <button onclick="setIncentiveFilter('Prize_Share')" class="incentive-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap transition" data-inc="Prize_Share">
+            Hackathon Prize
+          </button>
+          <button onclick="setIncentiveFilter('Milestone_Proof')" class="incentive-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap transition" data-inc="Milestone_Proof">
+            Proof of Work / LOR
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Track Tabs -->
+      <div class="flex items-center gap-2 overflow-x-auto border-b border-slate-800/80 pb-2">
+        <button onclick="setTrackFilter('all')" class="track-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-orange-500 text-white shadow-sm" data-track="all">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>All Disciplines</span>
+          <span id="count-all" class="text-[10px] bg-black/30 px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+        <button onclick="setTrackFilter('Tech_Engineering')" class="track-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-slate-900/60 hover:text-slate-200 border border-slate-800 transition flex items-center gap-2" data-track="Tech_Engineering">
+          <i data-lucide="code" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Tech &amp; Engineering</span>
+          <span id="count-tech" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full text-slate-300">0</span>
+        </button>
+        <button onclick="setTrackFilter('Business_Strategy')" class="track-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-slate-900/60 hover:text-slate-200 border border-slate-800 transition flex items-center gap-2" data-track="Business_Strategy">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Business &amp; Strategy</span>
+          <span id="count-biz" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full text-slate-300">0</span>
+        </button>
+        <button onclick="setTrackFilter('UI_UX_Design')" class="track-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-slate-900/60 hover:text-slate-200 border border-slate-800 transition flex items-center gap-2" data-track="UI_UX_Design">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span>UI/UX &amp; Product Design</span>
+          <span id="count-design" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full text-slate-300">0</span>
+        </button>
+        <button onclick="setTrackFilter('Growth_Marketing')" class="track-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-slate-900/60 hover:text-slate-200 border border-slate-800 transition flex items-center gap-2" data-track="Growth_Marketing">
+          <i data-lucide="megaphone" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Growth &amp; Marketing</span>
+          <span id="count-growth" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded-full text-slate-300">0</span>
+        </button>
+      </div>
+
+    </div>
+
+    <div id="job-feed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Generated via JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-16 px-4">
+      <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 mx-auto flex items-center justify-center text-slate-500 mb-4">
+        <i data-lucide="radar" class="w-8 h-8 text-orange-400/60"></i>
+      </div>
+      <h3 class="text-lg font-bold text-white font-space">No active role bounties match this radius query</h3>
+      <p class="text-slate-400 text-sm max-w-sm mx-auto mt-1">Try broadening your stack keyword or clear discipline filters to see nearby campus teams.</p>
+      <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition">
+        Reset All Filters
+      </button>
+    </div>
+
+  </main>
+
+  <div id="apply-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative transform transition-all">
+      <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-bold">
+          <i data-lucide="send" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white font-space">Apply in 1-Click</h3>
+          <p id="apply-target-role" class="text-xs text-orange-400 font-mono">React Native Dev • FinTrack</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400 mb-5">
+        Campra bypasses corporate resumes. Send your proof-of-work and pitch note to trigger a 15-minute cafeteria interview.
+      </p>
+
+      <form id="apply-form" onsubmit="handleApplySubmit(event)" class="space-y-4">
+        <input type="hidden" id="apply-job-id" value="">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Your Full Name &amp; College Roll / Branch</label>
+          <input type="text" id="applicant-name" required placeholder="e.g. Rohan Sharma (CSE 3rd Year)" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Institutional College Email (.edu / .ac.in)</label>
+          <input type="email" id="applicant-email" required placeholder="rohan.cs22@pes.edu" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Proof-of-Work (GitHub / Behance / Notion / Deck URL)</label>
+          <input type="url" id="applicant-portfolio" required placeholder="https://github.com/rohan-builds" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">2-Sentence Pitch Note (Why can you execute this?)</label>
+          <textarea id="applicant-pitch" required rows="3" placeholder="I built the real-time canteen billing bot at last month's hackathon and have 200+ hours in React Native &amp; Supabase." class="w-full px-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500 transition"></textarea>
+        </div>
+
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-2">
+            <i data-lucide="coffee" class="w-4 h-4 text-orange-400"></i>
+            <span>Meetup spot on acceptance:</span>
+          </div>
+          <span id="apply-modal-spot" class="text-slate-200 font-bold font-mono">Audi Canteen Counter</span>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 transition">
+          Dispatch Application &amp; Ping Founder
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="post-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closePostModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-bold">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white font-space">Post Startup Requisition</h3>
+          <p class="text-xs text-slate-400">Broadcasting to your campus walking radius (&lt; 800m)</p>
+        </div>
+      </div>
+
+      <form id="post-form" onsubmit="handlePostSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Startup Project Title</label>
+          <input type="text" id="post-title" required placeholder="e.g. DormDrop, PulseAI, AgriSentry" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">One-Liner Problem Statement</label>
+          <input type="text" id="post-oneliner" required placeholder="e.g. Peer-to-peer 10-minute grocery delivery between campus hostel blocks." class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Discipline Track</label>
+            <select id="post-track" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+              <option value="Tech_Engineering">Tech &amp; Engineering</option>
+              <option value="Business_Strategy">Business &amp; Strategy</option>
+              <option value="UI_UX_Design">UI/UX Design</option>
+              <option value="Growth_Marketing">Growth &amp; Marketing</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Role Title Needed</label>
+            <input type="text" id="post-role" required placeholder="e.g. Lead Flutter Dev, GTM Lead" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Compensation Model</label>
+            <select id="post-incentive-type" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+              <option value="Sweat_Equity">Sweat Equity (%)</option>
+              <option value="Prize_Share">Hackathon Prize Split</option>
+              <option value="Milestone_Proof">Proof-of-Work / LOR</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Incentive Details</label>
+            <input type="text" id="post-incentive-details" required placeholder="e.g. 15% Equity, 40% Prize Pool" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Time Commitment</label>
+            <input type="text" id="post-hours" required placeholder="e.g. 8-10 hrs / week" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Preferred Campus Meetup Spot</label>
+            <input type="text" id="post-spot" required placeholder="e.g. Audi Canteen, Library Lawn" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Required Stack / Skill Chips (comma separated)</label>
+          <input type="text" id="post-tags" required placeholder="e.g. Next.js, Supabase, Tailwind, Pitch Deck" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Your Name &amp; Dept / Branch</label>
+          <input type="text" id="post-founder" required placeholder="e.g. Ananya Rao (BBA Entrepreneurship, 2nd Yr)" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 transition mt-2">
+          Publish to Campus Hub Feed
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="huddle-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-orange-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeHuddleModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Anti-ghosting Banner -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-ping"></span>
+          <span class="text-xs font-bold text-orange-400 font-mono uppercase tracking-wider">Active Campus Huddle</span>
+        </div>
+        <span class="text-[11px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded font-mono">Status: In Progress</span>
+      </div>
+
+      <!-- Live 15-Minute Timer -->
+      <div class="text-center py-4 bg-slate-900/80 rounded-2xl border border-slate-800/80 mb-5">
+        <div class="text-xs text-slate-400 uppercase tracking-widest font-mono mb-1">Time Remaining to Meet</div>
+        <div id="countdown-timer" class="text-5xl font-black font-space tracking-tight text-white flex items-center justify-center gap-1">
+          <span id="timer-min">14</span>:<span id="timer-sec">42</span>
+        </div>
+        <div class="text-[11px] text-orange-400 mt-1 flex items-center justify-center gap-1 font-medium">
+          <i data-lucide="zap" class="w-3 h-3"></i>
+          <span>Auto-expires if physical check-in is not confirmed</span>
+        </div>
+      </div>
+
+      <!-- Huddle Details -->
+      <div class="space-y-3 mb-5 text-xs">
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="text-slate-400">Meeting Target:</span>
+          <span id="huddle-project-name" class="font-bold text-white">CampusCart (PES RR)</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div class="flex items-center gap-2 text-slate-400">
+            <i data-lucide="map-pin" class="w-4 h-4 text-orange-400"></i>
+            <span>Designated Spot:</span>
+          </div>
+          <span id="huddle-landmark" class="font-bold text-orange-300 font-mono">Main Canteen - Table 4</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="text-slate-400">Meeting With:</span>
+          <span id="huddle-with-name" class="font-semibold text-slate-200">Arjun V. (Lead Founder)</span>
+        </div>
+      </div>
+
+      <!-- 4-Digit Mutual OTP Handshake Section -->
+      <div id="otp-section" class="bg-gradient-to-br from-slate-900 to-[#131d31] p-4 rounded-2xl border border-slate-800 text-center">
+        <div class="text-xs font-semibold text-slate-200 mb-1">In-Person Mutual Handshake OTP</div>
+        <p class="text-[11px] text-slate-400 mb-3">Both students enter the 4-digit code face-to-face to verify physical presence and unlock team repo.</p>
+        
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <input type="text" maxlength="1" id="otp-1" class="w-10 h-12 text-center text-xl font-bold bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-orange-500" value="4">
+          <input type="text" maxlength="1" id="otp-2" class="w-10 h-12 text-center text-xl font-bold bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-orange-500" value="8">
+          <input type="text" maxlength="1" id="otp-3" class="w-10 h-12 text-center text-xl font-bold bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-orange-500" value="2">
+          <input type="text" maxlength="1" id="otp-4" class="w-10 h-12 text-center text-xl font-bold bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-orange-500" value="9">
+        </div>
+
+        <button onclick="verifyHuddleOTP()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Verify Mutual Handshake</span>
+        </button>
+      </div>
+
+      <!-- Verified Success State (Hidden by default) -->
+      <div id="huddle-success-state" class="hidden text-center py-6">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="award" class="w-8 h-8"></i>
+        </div>
+        <h4 class="text-lg font-bold text-white font-space">Huddle Verified &amp; Team Formed!</h4>
+        <p class="text-xs text-slate-300 max-w-xs mx-auto mt-1 mb-4">
+          Physical presence confirmed at <strong class="text-white">Main Canteen</strong>. The 1-page founder agreement template and team room are now active.
+        </p>
+        <button onclick="closeHuddleModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl transition">
+          Return to Campus Feed
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs shadow-2xl">
+    <div id="toast-icon" class="text-orange-400">
+      <i data-lucide="check" class="w-4 h-4"></i>
+    </div>
+    <span id="toast-msg">Notification Message</span>
+  </div>
+
+  <script>
+    // Initial Campus Database
+    const CAMPUS_HUBS = {
+      pes_rr: {
+        name: "PES University (RR Campus)",
+        shortName: "PES RR",
+        city: "Bengaluru, 100 Feet Ring Road",
+        spots: ["Audi Canteen Counter 2", "Library Lawn Steps", "GJBC Ground Food Court", "MRD Tech Block Bench 4"]
+      },
+      rvce: {
+        name: "RV College of Engineering (RVCE)",
+        shortName: "RVCE",
+        city: "Mysore Road, Bengaluru",
+        spots: ["Main Canteen Gazebo", "Civil Block Quad", "Ranganatha Cafeteria", "Library Reading Lawn"]
+      },
+      reva: {
+        name: "REVA University",
+        shortName: "REVA",
+        city: "Kattigenahalli, Yelahanka",
+        spots: ["Central Food Court (CFC)", "Kollam Open Air Lawn", "Gazebo Block 3", "Student Center Hub"]
+      },
+      bmsce: {
+        name: "BMS College of Engineering (BMSCE)",
+        shortName: "BMSCE",
+        city: "Basavanagudi, Bengaluru",
+        spots: ["Vidyarthi Canteen", "Library Lawn Pergola", "PG Block Cafeteria", "Bull Temple Road Gate Lawn"]
+      }
+    };
+
+    // Realistic Mock Campus Bounties
+    let JOBS_DATA = [
+      {
+        id: "job-1",
+        campus: "pes_rr",
+        startup: "DormDrop",
+        problem: "Peer-to-peer 10-minute midnight pantry and print delivery between hostel blocks.",
+        track: "Tech_Engineering",
+        role: "Lead React Native / Expo Dev",
+        distanceMeters: 280,
+        hoursWeek: "8-10 hrs/wk",
+        incentiveType: "Sweat_Equity",
+        incentiveLabel: "20% Sweat Equity",
+        founder: "Aditya Hegde (CSE 3rd Yr)",
+        tags: ["React Native", "Supabase", "Tailwind"],
+        spot: "Audi Canteen Counter 2",
+        verifiedStudent: true
+      },
+      {
+        id: "job-2",
+        campus: "pes_rr",
+        startup: "BioHarvest AI",
+        problem: "Automated shelf-life and crop rot prediction for campus cafeterias using vision models.",
+        track: "Tech_Engineering",
+        role: "Computer Vision / PyTorch Engineer",
+        distanceMeters: 410,
+        hoursWeek: "10-12 hrs/wk",
+        incentiveType: "Prize_Share",
+        incentiveLabel: "50% Hackathon Prize Share",
+        founder: "Meera S. (Biotech + CS)",
+        tags: ["PyTorch", "FastAPI", "OpenCV"],
+        spot: "GJBC Ground Food Court",
+        verifiedStudent: true
+      },
+      {
+        id: "job-3",
+        campus: "pes_rr",
+        startup: "UniSplit Finance",
+        problem: "Micro-split UPI tab for college flatmates and canteen group lunches with auto-settlement.",
+        track: "Business_Strategy",
+        role: "Co-Founder & Financial Modeling Lead",
+        distanceMeters: 330,
+        hoursWeek: "6-8 hrs/wk",
+        incentiveType: "Sweat_Equity",
+        incentiveLabel: "25% Co-Founder Equity",
+        founder: "Karthik R. (BBA Finance)",
+        tags: ["FinTech", "Unit Economics", "Pitch Deck"],
+        spot: "Library Lawn Steps",
+        verifiedStudent: true
+      },
+      {
+        id: "job-4",
+        campus: "pes_rr",
+        startup: "EventLoop Campus",
+        problem: "Centralized pass booking and verified student ticketing for fests without black marketing.",
+        track: "UI_UX_Design",
+        role: "Product & Interaction Designer",
+        distanceMeters: 520,
+        hoursWeek: "6-8 hrs/wk",
+        incentiveType: "Milestone_Proof",
+        incentiveLabel: "Verified LOR + ₹4,000 Milestone",
+        founder: "Tanvi Nair (School of Design)",
+        tags: ["Figma", "Design Systems", "Prototyping"],
+        spot: "MRD Tech Block Bench 4",
+        verifiedStudent: true
+      },
+      {
+        id: "job-5",
+        campus: "pes_rr",
+        startup: "Campra Pulse",
+        problem: "Anonymous verified venting and club ideathon polls for university engineering departments.",
+        track: "Growth_Marketing",
+        role: "Head of Campus Distribution",
+        distanceMeters: 190,
+        hoursWeek: "5-6 hrs/wk",
+        incentiveType: "Sweat_Equity",
+        incentiveLabel: "10% Equity + Fest Bounty",
+        founder: "Vishal K. (ECE 2nd Yr)",
+        tags: ["GTM", "Viral Loops", "Student Clubs"],
+        spot: "Audi Canteen Counter 2",
+        verifiedStudent: true
+      },
+      {
+        id: "job-6",
+        campus: "rvce",
+        startup: "SolarSense RV",
+        problem: "Smart IoT energy monitoring across hostel blocks with automatic power-surge cutoffs.",
+        track: "Tech_Engineering",
+        role: "Embedded Systems / ESP32 Developer",
+        distanceMeters: 350,
+        hoursWeek: "8-10 hrs/wk",
+        incentiveType: "Prize_Share",
+        incentiveLabel: "Smart India Hackathon Pool",
+        founder: "Darshan P. (ECE RVCE)",
+        tags: ["C++", "MQTT", "ESP32"],
+        spot: "Civil Block Quad",
+        verifiedStudent: true
+      },
+      {
+        id: "job-7",
+        campus: "rvce",
+        startup: "NutriTray",
+        problem: "Personalized gym-goer meal optimization mapped directly to RVCE mess daily menus.",
+        track: "Business_Strategy",
+        role: "Operations & Menu Partnerships Lead",
+        distanceMeters: 460,
+        hoursWeek: "6 hrs/wk",
+        incentiveType: "Sweat_Equity",
+        incentiveLabel: "18% Equity Split",
+        founder: "Ananya Dixit (ISE RVCE)",
+        tags: ["B2C Marketing", "Vendor GTM"],
+        spot: "Main Canteen Gazebo",
+        verifiedStudent: true
+      },
+      {
+        id: "job-8",
+        campus: "reva",
+        startup: "SkillSwap REVA",
+        problem: "P2P peer tutoring platform where seniors barter placement prep for junior design work.",
+        track: "Growth_Marketing",
+        role: "Campus Growth Lead",
+        distanceMeters: 290,
+        hoursWeek: "6-8 hrs/wk",
+        incentiveType: "Milestone_Proof",
+        incentiveLabel: "Certificate + Hackathon Seat",
+        founder: "Sahil Khan (REVA E-Cell)",
+        tags: ["Growth Hacking", "Social Media"],
+        spot: "Central Food Court (CFC)",
+        verifiedStudent: true
+      },
+      {
+        id: "job-9",
+        campus: "bmsce",
+        startup: "AutoRent Basavanagudi",
+        problem: "Student-to-student EV scooter rental between BMSCE campus and National College metro.",
+        track: "Tech_Engineering",
+        role: "Full-Stack Backend (FastAPI)",
+        distanceMeters: 310,
+        hoursWeek: "10 hrs/wk",
+        incentiveType: "Sweat_Equity",
+        incentiveLabel: "22% Equity Share",
+        founder: "Pooja Hegde (BMSCE Mech + CS)",
+        tags: ["Python", "FastAPI", "PostGIS"],
+        spot: "Vidyarthi Canteen",
+        verifiedStudent: true
+      }
+    ];
+
+    // App State
+    let currentCampus = "pes_rr";
+    let activeTrack = "all";
+    let activeIncentive = "all";
+    let searchQuery = "";
+    let huddleTimerInterval = null;
+    let secondsLeft = 14 * 60 + 42; // 14 mins 42 sec
+    let activeHuddleData = {
+      project: "DormDrop (PES RR)",
+      landmark: "Audi Canteen Counter 2",
+      founder: "Aditya Hegde (CSE 3rd Yr)",
+      otp: "4829"
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      updateCampusHero();
+      renderFeed();
+      startHuddleTimer();
+    });
+
+    function changeCampus(campusKey) {
+      currentCampus = campusKey;
+      updateCampusHero();
+      renderFeed();
+      showToast(`Switched radar to ${CAMPUS_HUBS[campusKey].name}`);
+    }
+
+    function updateCampusHero() {
+      const hub = CAMPUS_HUBS[currentCampus];
+      document.getElementById("hero-campus-label").innerText = `${hub.name} • ${hub.city}`;
+    }
+
+    function setTrackFilter(trackKey) {
+      activeTrack = trackKey;
+      document.querySelectorAll(".track-btn").forEach(btn => {
+        if (btn.getAttribute("data-track") === trackKey) {
+          btn.className = "track-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-orange-500 text-white shadow-sm";
+        } else {
+          btn.className = "track-btn px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-slate-900/60 hover:text-slate-200 border border-slate-800 transition flex items-center gap-2";
+        }
+      });
+      renderFeed();
+    }
+
+    function setIncentiveFilter(incKey) {
+      activeIncentive = incKey;
+      document.querySelectorAll(".incentive-btn").forEach(btn => {
+        if (btn.getAttribute("data-inc") === incKey) {
+          btn.className = "incentive-btn active-filter px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 whitespace-nowrap transition";
+        } else {
+          btn.className = "incentive-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white whitespace-nowrap transition";
+        }
+      });
+      renderFeed();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim().toLowerCase();
+      renderFeed();
+    }
+
+    function resetFilters() {
+      activeTrack = "all";
+      activeIncentive = "all";
+      searchQuery = "";
+      document.getElementById("search-input").value = "";
+      setTrackFilter("all");
+      setIncentiveFilter("all");
+      renderFeed();
+    }
+
+    function resetView() {
+      resetFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderFeed() {
+      const feedContainer = document.getElementById("job-feed");
+      const emptyState = document.getElementById("empty-state");
+
+      // Filter by campus, discipline track, incentive, and search query
+      const campusJobs = JOBS_DATA.filter(j => j.campus === currentCampus);
+
+      // Update badge counts
+      document.getElementById("stat-active-bounties").innerText = campusJobs.length;
+      document.getElementById("count-all").innerText = campusJobs.length;
+      document.getElementById("count-tech").innerText = campusJobs.filter(j => j.track === "Tech_Engineering").length;
+      document.getElementById("count-biz").innerText = campusJobs.filter(j => j.track === "Business_Strategy").length;
+      document.getElementById("count-design").innerText = campusJobs.filter(j => j.track === "UI_UX_Design").length;
+      document.getElementById("count-growth").innerText = campusJobs.filter(j => j.track === "Growth_Marketing").length;
+
+      const filtered = campusJobs.filter(item => {
+        const matchesTrack = (activeTrack === "all" || item.track === activeTrack);
+        const matchesIncentive = (activeIncentive === "all" || item.incentiveType === activeIncentive);
+        const matchesQuery = !searchQuery || 
+          item.startup.toLowerCase().includes(searchQuery) ||
+          item.role.toLowerCase().includes(searchQuery) ||
+          item.problem.toLowerCase().includes(searchQuery) ||
+          item.tags.some(t => t.toLowerCase().includes(searchQuery));
+        return matchesTrack && matchesIncentive && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        feedContainer.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      feedContainer.innerHTML = filtered.map(job => {
+        // Tag styles
+        let trackBadge = '';
+        if (job.track === 'Tech_Engineering') {
+          trackBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">TECH &amp; DEV</span>';
+        } else if (job.track === 'Business_Strategy') {
+          trackBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">BUSINESS / GTM</span>';
+        } else if (job.track === 'UI_UX_Design') {
+          trackBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">UI/UX DESIGN</span>';
+        } else {
+          trackBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">GROWTH</span>';
+        }
+
+        const tagBadges = job.tags.map(t => 
+          `<span class="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[10px] font-mono border border-slate-800">${t}</span>`
+        ).join("");
+
+        return `
+          <div class="bg-campra-card/90 border border-campra-border hover:border-orange-500/50 rounded-2xl p-5 shadow-lg flex flex-col justify-between transition-all duration-200 hover:-translate-y-1">
+            <div>
+              <!-- Header info -->
+              <div class="flex items-start justify-between gap-3 mb-2.5">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-space font-bold text-lg text-white">${job.startup}</h3>
+                    ${job.verifiedStudent ? '<span title="Verified College Email" class="text-orange-400"><i data-lucide="shield-check" class="w-4 h-4"></i></span>' : ''}
+                  </div>
+                  <div class="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                    <i data-lucide="navigation" class="w-3 h-3 text-emerald-400"></i>
+                    <span>${job.distanceMeters}m away</span>
+                    <span class="text-slate-600">•</span>
+                    <span>${job.hoursWeek}</span>
+                  </div>
+                </div>
+                ${trackBadge}
+              </div>
+
+              <!-- Problem statement -->
+              <p class="text-xs text-slate-300 line-clamp-2 mb-3 leading-relaxed">
+                "${job.problem}"
+              </p>
+
+              <!-- Role Bounty Box -->
+              <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800/80 mb-3">
+                <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">Seeking Role</div>
+                <div class="text-sm font-bold text-white font-space mt-0.5">${job.role}</div>
+                
+                <div class="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                  <span class="text-slate-400">Compensation:</span>
+                  <span class="font-semibold text-orange-400 font-mono text-[11px] bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                    ${job.incentiveLabel}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                ${tagBadges}
+              </div>
+            </div>
+
+            <!-- Footer & Action -->
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2 overflow-hidden">
+                <div class="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">
+                  ${job.founder.charAt(0)}
+                </div>
+                <div class="text-[11px] text-slate-400 truncate">
+                  By <strong class="text-slate-200">${job.founder.split(' ')[0]}</strong>
+                </div>
+              </div>
+
+              <button 
+                onclick="openApplyModal('${job.id}')"
+                class="px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 text-xs font-bold transition flex items-center gap-1.5 active:scale-95 whitespace-nowrap">
+                <span>Apply in 1-Click</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    function openApplyModal(jobId) {
+      const job = JOBS_DATA.find(j => j.id === jobId);
+      if (!job) return;
+
+      document.getElementById("apply-job-id").value = jobId;
+      document.getElementById("apply-target-role").innerText = `${job.role} • ${job.startup}`;
+      document.getElementById("apply-modal-spot").innerText = job.spot;
+      document.getElementById("apply-modal").classList.remove("hidden");
+    }
+
+    function closeApplyModal() {
+      document.getElementById("apply-modal").classList.add("hidden");
+    }
+
+    function handleApplySubmit(e) {
+      e.preventDefault();
+      const jobId = document.getElementById("apply-job-id").value;
+      const job = JOBS_DATA.find(j => j.id === jobId);
+      const name = document.getElementById("applicant-name").value;
+
+      closeApplyModal();
+
+      // Trigger active huddle simulation
+      if (job) {
+        activeHuddleData = {
+          project: `${job.startup} (${CAMPUS_HUBS[job.campus].shortName})`,
+          landmark: job.spot,
+          founder: job.founder,
+          otp: "4829"
+        };
+        document.getElementById("huddle-project-name").innerText = activeHuddleData.project;
+        document.getElementById("huddle-landmark").innerText = activeHuddleData.landmark;
+        document.getElementById("huddle-with-name").innerText = activeHuddleData.founder;
+        document.getElementById("huddle-badge").classList.remove("hidden");
+        secondsLeft = 15 * 60; // reset to 15:00
+      }
+
+      showToast(`Application sent! Founder notified to meet at ${job.spot}`);
+      
+      // Auto open huddle drawer after 1.5 seconds to preview the 15-minute countdown UX
+      setTimeout(() => {
+        openHuddleModal();
+      }, 1500);
+    }
+
+    function openPostModal() {
+      document.getElementById("post-modal").classList.remove("hidden");
+      // Set default spot suggestion
+      const spots = CAMPUS_HUBS[currentCampus].spots;
+      document.getElementById("post-spot").value = spots[Math.floor(Math.random() * spots.length)];
+    }
+
+    function closePostModal() {
+      document.getElementById("post-modal").classList.add("hidden");
+    }
+
+    function handlePostSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById("post-title").value;
+      const oneliner = document.getElementById("post-oneliner").value;
+      const track = document.getElementById("post-track").value;
+      const role = document.getElementById("post-role").value;
+      const incentiveType = document.getElementById("post-incentive-type").value;
+      const incentiveDetails = document.getElementById("post-incentive-details").value;
+      const hours = document.getElementById("post-hours").value;
+      const spot = document.getElementById("post-spot").value;
+      const tags = document.getElementById("post-tags").value.split(',').map(s => s.trim()).filter(Boolean);
+      const founder = document.getElementById("post-founder").value;
+
+      const newJob = {
+        id: "job-" + (JOBS_DATA.length + 1),
+        campus: currentCampus,
+        startup: title,
+        problem: oneliner,
+        track: track,
+        role: role,
+        distanceMeters: Math.floor(Math.random() * 400) + 150,
+        hoursWeek: hours,
+        incentiveType: incentiveType,
+        incentiveLabel: incentiveDetails,
+        founder: founder,
+        tags: tags.length ? tags : ["MVP", "StudentStartup"],
+        spot: spot,
+        verifiedStudent: true
+      };
+
+      JOBS_DATA.unshift(newJob);
+      closePostModal();
+      renderFeed();
+      showToast(`Role bounty for "${title}" published across ${CAMPUS_HUBS[currentCampus].shortName}!`);
+      document.getElementById("post-form").reset();
+    }
+
+    function openHuddleModal() {
+      document.getElementById("huddle-modal").classList.remove("hidden");
+      document.getElementById("huddle-badge").classList.add("hidden");
+      lucide.createIcons();
+    }
+
+    function closeHuddleModal() {
+      document.getElementById("huddle-modal").classList.add("hidden");
+    }
+
+    function startHuddleTimer() {
+      if (huddleTimerInterval) clearInterval(huddleTimerInterval);
+      huddleTimerInterval = setInterval(() => {
+        if (secondsLeft > 0) {
+          secondsLeft--;
+          const mins = Math.floor(secondsLeft / 60);
+          const secs = secondsLeft % 60;
+          document.getElementById("timer-min").innerText = mins.toString().padStart(2, '0');
+          document.getElementById("timer-sec").innerText = secs.toString().padStart(2, '0');
+        } else {
+          document.getElementById("timer-min").innerText = "00";
+          document.getElementById("timer-sec").innerText = "00";
+        }
+      }, 1000);
+    }
+
+    function verifyHuddleOTP() {
+      const val = 
+        document.getElementById("otp-1").value +
+        document.getElementById("otp-2").value +
+        document.getElementById("otp-3").value +
+        document.getElementById("otp-4").value;
+
+      if (val === "4829" || val.length === 4) {
+        document.getElementById("otp-section").classList.add("hidden");
+        document.getElementById("huddle-success-state").classList.remove("hidden");
+        showToast("Mutual OTP handshake verified! Founders agreement active.");
+      } else {
+        showToast("Invalid OTP code. Please match with founder's screen.");
+      }
+    }
+
+    // Toast Utility
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-msg").innerText = message;
+      toast.classList.remove("translate-y-24", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-24", "opacity-0");
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

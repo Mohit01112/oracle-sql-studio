@@ -1,6 +1,7 @@
 # Oracle SQL Studio
 
 An offline-first desktop application for learning and practicing Oracle SQL.
+to make the students easy to understand and practice 
 
 ## Features
 
